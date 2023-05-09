@@ -28,7 +28,24 @@ func (a *App) NewMenu() *menu.Menu {
 	AppMenu := menu.NewMenu()
 	FileMenu := AppMenu.AddSubmenu("ファイル(F)")
 	FileMenu.AddText("マップ新規作成", nil, openFile)
-	FileMenu.AddText("マップ読み込み", nil, openFile)
+	FileMenu.AddText("マップ読み込み", nil, func(_ *menu.CallbackData) {
+		filepath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+			Filters: []runtime.FileFilter{
+				{
+					DisplayName: "Map",
+					Pattern: ".map",
+				},
+				{
+					DisplayName: "すべて",
+					Pattern: "*",
+				},
+			},
+		})
+		if err != nil {
+			panic(err)
+		}
+		runtime.LogInfo(a.ctx, filepath)
+	})
 	FileMenu.AddText("マップ上書き保存", keys.CmdOrCtrl("s"), openFile)
 	FileMenu.AddText("名前を付けて保存", keys.OptionOrAlt("a"), openFile)
 	FileMenu.AddSeparator()
