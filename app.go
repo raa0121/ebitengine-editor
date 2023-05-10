@@ -25,19 +25,15 @@ func (a *App) startup(ctx context.Context) {
 }
 
 func (a *App) NewMenu() *menu.Menu {
-	AppMenu := menu.NewMenu()
-	FileMenu := AppMenu.AddSubmenu("ファイル(F)")
-	FileMenu.AddText("マップ新規作成", nil, openFile)
-	FileMenu.AddText("マップ読み込み", nil, func(_ *menu.CallbackData) {
+	appMenu := menu.NewMenu()
+	fileMenu := appMenu.AddSubmenu("ファイル(F)")
+	fileMenu.AddText("マップ新規作成", nil, openFile)
+	fileMenu.AddText("マップ読み込み", nil, func(_ *menu.CallbackData) {
 		filepath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 			Filters: []runtime.FileFilter{
 				{
 					DisplayName: "Map",
-					Pattern: ".map",
-				},
-				{
-					DisplayName: "すべて",
-					Pattern: "*",
+					Pattern: "*.map",
 				},
 			},
 		})
@@ -46,22 +42,40 @@ func (a *App) NewMenu() *menu.Menu {
 		}
 		runtime.LogInfo(a.ctx, filepath)
 	})
-	FileMenu.AddText("マップ上書き保存", keys.CmdOrCtrl("s"), openFile)
-	FileMenu.AddText("名前を付けて保存", keys.OptionOrAlt("a"), openFile)
-	FileMenu.AddSeparator()
-	FileMenu.AddText("ゲームデータの作成", keys.OptionOrAlt("g"), openFile)
-	FileMenu.AddSeparator()
-	FileMenu.AddText("エディターの終了", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
+	fileMenu.AddText("マップ上書き保存", keys.CmdOrCtrl("s"), openFile)
+	fileMenu.AddText("名前を付けて保存", keys.OptionOrAlt("a"), openFile)
+	fileMenu.AddSeparator()
+	fileMenu.AddText("ゲームデータの作成", keys.OptionOrAlt("g"), openFile)
+	fileMenu.AddSeparator()
+	fileMenu.AddText("エディターの終了", keys.CmdOrCtrl("q"), func(_ *menu.CallbackData) {
 		runtime.Quit(a.ctx)
 	})
-	EditMenu := AppMenu.AddSubmenu("編集(E)")
-	EditMenu.AddText("イベント切り取り", keys.Key("X"), openFile)
-	EditMenu.AddText("イベントコピー", keys.Key("C"), openFile)
-	EditMenu.AddText("イベント貼り付け", keys.Key("V"), openFile)
-	EditMenu.AddText("削除", keys.Key("DELETE"), openFile)
-	EditMenu.AddText("マップの基本設定", nil, openFile)
-	return AppMenu
+	editMenu := appMenu.AddSubmenu("編集(E)")
+	editMenu.AddText("イベント切り取り", keys.Key("X"), openFile)
+	editMenu.AddText("イベントコピー", keys.Key("C"), openFile)
+	editMenu.AddText("イベント貼り付け", keys.Key("V"), openFile)
+	editMenu.AddText("削除", keys.Key("DELETE"), openFile)
+	editMenu.AddText("マップの基本設定", nil, openFile)
+	layerMenu := appMenu.AddSubmenu("レイヤー")
+	layerMenu.AddRadio("レイヤー1", false, nil, openFile)
+	layerMenu.AddRadio("レイヤー2", false, nil, openFile)
+	layerMenu.AddRadio("レイヤー3", false, nil, openFile)
+	layerMenu.AddRadio("イベント", false, nil, openFile)
+	gameSettingMenu := appMenu.AddSubmenu("ゲーム設定")
+	gameSettingMenu.AddText("ゲーム基本設定を開く", nil, openFile)
+	gameSettingMenu.AddText("コンフィグを開く", nil, openFile)
+	gameSettingMenu.AddRadio("デバッグウィンドウ使用", false, nil, openFile)
+	optionMenu := appMenu.AddSubmenu("オプション")
+	optionMenu.AddText("エディターオプション", nil, openFile)
+	helpMenu := appMenu.AddSubmenu("ヘルプ(H)")
+	helpMenu.AddText("バージョン情報", nil, func(_ *menu.CallbackData) {
+		runtime.MessageDialog(a.ctx, runtime.MessageDialogOptions{
+			Title: "バージョン情報",
+		})
+	})
+	return appMenu
 }
+
 
 func openFile(_ *menu.CallbackData) {
 }
